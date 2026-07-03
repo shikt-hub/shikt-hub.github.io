@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>進数表現学習教材</title>
+<meta name="robots" content="index,follow">
+<style>
+  :root {
+    --blue: #2563eb;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #f5f7fa;
+    --card: #fff;
+    --shadow: 0 2px 8px rgba(0,0,0,.1);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: sans-serif; margin: 0; background: var(--bg); transition: 0.3s; /* 滑らかに色を変える */ }
+  header { background: var(--blue); color: #fff; text-align: center; padding: 30px; }
+  header h1 { margin: 0 0 8px; }
+  section { max-width: 900px; margin: auto; padding: 30px; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .quest{display: flex;}
+  .quest div{margin: 0 20px; padding: 0 20px;}
+  button { background: var(--blue); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1em; }
+  button:hover { opacity: .88; }
+  .bitbtn{
+    display: flex;
+    justify-content: center;
+  }
+  .bitbtn label{
+    width: 50px;
+    background: var(--blue);
+    color: #fff;
+    padding: 10px;
+    margin: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .bitbtn input:checked+label{
+    background: var(--red);
+  }
+  .bitbtn input{
+    display: none;
+  }
+  .switch { width: 120px; height: 120px; border-radius: 50%; margin: 20px auto; display: flex; justify-content: center; align-items: center; font-size: 2em; color: #fff; }
+  #light{ display: flex; margin: 20px auto; justify-content: center; align-items: center;}
+  .on  { background: var(--green); }
+  .off { background: var(--red); }
+  .binary-box { font-size: 2em; text-align: center; margin: 20px; font-family: monospace; letter-spacing: .1em; }
+  input[type=text], input[type=color] { padding: 8px; font-size: 1em; border: 1px solid #ccc; border-radius: 6px; }
+  .correct { color: green; font-weight: bold; }
+  .wrong   { color: red;   font-weight: bold; }
+
+  /* ── カラーコードセクション ── */
+  #colorSection { display: grid; gap: 20px; }
+
+  .color-preview {
+    width: 100%;
+    height: 100px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    transition: background .3s;
+  }
+
+  .color-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .hex-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hex-input-wrap span { font-size: 1.3em; font-weight: bold; }
+  #hexInput {
+    font-family: monospace;
+    font-size: 1.1em;
+    width: 110px;
+    text-transform: uppercase;
+  }
+
+  /* RGBスライダー */
+  .rgb-sliders { display: grid; gap: 10px; }
+  .slider-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 52px;
+    align-items: center;
+    gap: 10px;
+  }
+  .slider-row label { font-weight: bold; }
+  input[type=range] { width: 100%; cursor: pointer; }
+  input[type=range].r-slider { accent-color: #e44; }
+  input[type=range].g-slider { accent-color: #2a2; }
+  input[type=range].b-slider { accent-color: #44e; }
+  .slider-val { font-family: monospace; text-align: right; font-size: .95em; }
+
+  /* 変換テーブル */
+  .conv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: .95em;
+  }
+  .conv-table th {
+    background: #e8edf5;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid #ccd;
+  }
+  .conv-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  .conv-table tr:last-child td { border-bottom: none; }
+  .ch-label {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .bit-row { display: flex; gap: 3px; flex-wrap: wrap; }
+  .bit {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8em; font-weight: bold; color: #fff;
+  }
+  .bit-1 { background: var(--blue); }
+  .bit-0 { background: #bbb; }
+  .dec-input {
+    width: 56px; padding: 4px 6px; font-family: monospace; font-size: .95em;
+    border: 1px solid #ccc; border-radius: 5px; text-align: center;
+  }
+  .dec-input:focus { outline: 2px solid var(--blue); border-color: transparent; }
+  .dec-input.error { border-color: var(--red); background: #fff0f0; }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="font-size: 40px;">コンピュータでのデジタル表現</h1>
+  <h2>第1章 数値の表現</h2>
+</header>
+<section>
+
+  <!-- ① スイッチ -->
+  <div class="card">
+    <h2>① なぜコンピュータは2進数でしか読み込めないのか</h2>
+    <p>コンピュータは電気が流れる（ON）か流れない（OFF）かを利用して計算している。</p>
+    <div id="lamp" class="switch off">0</div>
+    <img id="light" src="offLight.jpeg">
+    <div style="text-align:center;"><button onclick="toggle()">スイッチを切り替える</button></div>
+    <p>ON → 1 / OFF → 0</p>
+  </div>
+
+  <!-- ② 4ビット -->
+  <div class="card">
+    <h2>② 進数の表現と変換</h2>
+    <div style="text-align:center;">
+    <div class="bitbtn" style="text-align:center;">
+      <input type="checkbox" id="1" name="bitbtn" onclick="flip(0)"><label for="1">8</label>
+      <input type="checkbox" id="2" name="bitbtn" onclick="flip(1)"><label for="2">4</label>
+      <input type="checkbox" id="3" name="bitbtn" onclick="flip(2)"><label for="3">2</label>
+      <input type="checkbox" id="4" name="bitbtn" onclick="flip(3)"><label for="4">1</label>
+    </div>
+      <div id="binary" class="binary-box">0000</div>
+      <h3>10進数：<span id="decimal">0</span></h3>
+    </div>
+    <h2>・2進数は2の累乗に対応している</h2>
+    <div style="text-align: center;">
+      <p style="font-size: 30px;"> 0　0　0　0 </p>
+      <p style="font-size: 30px;"> ⇑　⇑　⇑　⇑ </p>
+      <p style="font-size: 30px;"> 8　4　2　1 </p>
+      <p style="font-size: 25px;"> (2<sup>3</sup>) (2<sup>2</sup>) (2<sup>1</sup>) (2<sup>0</sup>) </p>
+    </div>
+  </div>
+
+  <!-- ③ 文字 -->
+  <div class="card">
+    <h2>③ 文字も0と1で保存される</h2>
+    <p>文字「A」はコンピュータ内部では65として保存されています。</p>
+    <button onclick="showA()">Aの正体を見る</button>
+    <p id="aResult"></p>
+  </div>
+
+  <div class="card">
+    <h2>④ 2進数、10進数、16進数の対応表</h2>
+      <div>
+        <table border="1" style="width: 500px; text-align: center;">
+          <tr>
+            <th>2進数</th>
+            <th>10進数</th>
+            <th>16進数</th>
+          </tr>
+          <tr>
+            <td>0000</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>0001</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>0010</td>
+            <td>2</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>0011</td>
+            <td>3</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>0100</td>
+            <td>4</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>0101</td>
+            <td>5</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>0110</td>
+            <td>6</td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td>0111</td>
+            <td>7</td>
+            <td>7</td>
+          </tr>
+          <tr>
+            <td>1000</td>
+            <td>8</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>1001</td>
+            <td>9</td>
+            <td>9</td>
+          </tr>
+          <tr>
+            <td>1010</td>
+            <td>10</td>
+            <td>A</td>
+          </tr>
+          <tr>
+            <td>1011</td>
+            <td>11</td>
+            <td>B</td>
+          </tr>
+          <tr>
+            <td>1100</td>
+            <td>12</td>
+            <td>C</td>
+          </tr>
+          <tr>
+            <td>1101</td>
+            <td>13</td>
+            <td>D</td>
+          </tr>
+          <tr>
+            <td>1110</td>
+            <td>14</td>
+            <td>E</td>
+          </tr>
+          <tr>
+            <td>1111</td>
+            <td>15</td>
+            <td>F</td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ④ 進数チャレンジ -->
+  <div class="card">
+    <h2>⑤ 進数変換チャレンジ</h2>
+    <div class="quest">
+      <div>
+        <h3>10進⇒2進数</h3>
+    <p>(1)10進数13を2進数に変換してください</p>
+    <input type="text" id="answer1" placeholder="例：1010">
+    <button onclick="check1()">判定</button>
+    <p id="result1"></p>
+
+    <p>(2)10進数3を2進数に変換してください</p>
+    <input type="text" id="answer2" placeholder="例：1010">
+    <button onclick="check2()">判定</button>
+    <p id="result2"></p>
+
+    <p>(3)10進数9を2進数に変換してください</p>
+    <input type="text" id="answer3" placeholder="例：1010">
+    <button onclick="check3()">判定</button>
+    <p id="result3"></p>
+      </div>
+      <div style="border-left: 5px solid #000">
+        <h3>2進⇒10進数</h3>
+    <p>(4)2進数1010を10進数に変換してください</p>
+    <input type="text" id="answer4" placeholder="例：10">
+    <button onclick="check4()">判定</button>
+    <p id="result4"></p>
+
+    <p>(5)2進数1111を10進数に変換してください</p>
+    <input type="text" id="answer5" placeholder="例：10">
+    <button onclick="check5()">判定</button>
+    <p id="result5"></p>
+
+    <p>(6)2進数0101を10進数に変換してください</p>
+    <input type="text" id="answer6" placeholder="例：10">
+    <button onclick="check6()">判定</button>
+    <p id="result6"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ カラーコード -->
+  <div class="card">
+    <h2>⑥ カラーコードの16進数にしてみる</h2>
+    <div id="colorSection">
+      <!-- プレビュー＋コントロール -->
+      <div>
+        <div class="color-preview" id="colorPreview"></div>
+        <div class="color-controls" style="margin-top:14px;">
+          <div class="hex-input-wrap">
+            <span>#</span>
+            <input type="text" id="hexInput" value="2563EB" maxlength="6" placeholder="2563EB">
+          </div>
+          <input type="color" id="colorPicker" value="#2563eb" title="カラーピッカー">
+          <button onclick="change_color()">適用</button>
+          <button onclick="replaceColor()">元に戻す</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⑦２進数の複数桁の加算</h2>
+    <h2>0101(2)＋0011(2)</h2>
+    <center>
+    <pre id="kasan" style="font-size:32px;"></pre>
+    <button onclick="modoru()">戻る</button>    <button onclick="kasan()">次へ</button>
+    </center>
+  </div>
+
+  <div class="card">
+    <h2>⑧２進数の複数桁の減算</h2>
+    <h2>0101(2)ー0011(2)</h2>
+    <center>
+    <pre id="gensan" style="font-size:32px;"></pre>
+    <button onclick="modoru1()">戻る</button>    <button onclick="gensan()">次へ</button>
+    </center>
+  </div>
+
+  <div class="card">
+    <h2>⑨２進数の複数桁の加算と減算(正の数において)</h2>
+    <input type="text" id="keisan1" placeholder="例：1010">
+    <select id="enzan">
+      <option value="tasu">＋</option>
+      <option value="hiku">ー</option>
+    </select>
+    <input type="text" id="keisan2" placeholder="例：1010">
+    
+    <button onclick="keisan()">判定</button>
+    <p id="kei1"></p> 
+    <p id="kekka"></p>
+  </div>
+</section>
+<script>
+/* ── 既存機能 ── */
+function toggle(){
+  const lamp = document.getElementById("lamp");
+  const light = document.getElementById("light");
+  if(lamp.classList.contains("off")){
+    lamp.classList.replace("off","on"); lamp.textContent="1";
+    light.setAttribute("src","onLight.jpeg");
+  } else {
+    lamp.classList.replace("on","off"); lamp.textContent="0";
+    light.setAttribute("src","offLight.jpeg");
+  }
+}
+let bits=[0,0,0,0];
+function flip(i){
+  bits[i]=bits[i]===0?1:0;
+  document.getElementById("binary").textContent=bits.join("");
+  document.getElementById("decimal").textContent=bits[0]*8+bits[1]*4+bits[2]*2+bits[3];
+}
+
+function showA(){
+  document.getElementById("aResult").innerHTML="A → 65 → 1000001₂";
+}
+function check1(){
+  const ans=document.getElementById("answer1").value.trim();
+  document.getElementById("result1").innerHTML=
+    ans==="1101"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+function check2(){
+  const ans=document.getElementById("answer2").value.trim();
+  document.getElementById("result2").innerHTML=
+    ans==="0011"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+function check3(){
+  const ans=document.getElementById("answer3").value.trim();
+  document.getElementById("result3").innerHTML=
+    ans==="1001"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+
+function check4(){
+  const ans=document.getElementById("answer4").value.trim();
+  document.getElementById("result4").innerHTML=
+    ans==="10"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+function check5(){
+  const ans=document.getElementById("answer5").value.trim();
+  document.getElementById("result5").innerHTML=
+    ans==="15"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+function check6(){
+  const ans=document.getElementById("answer6").value.trim();
+  document.getElementById("result6").innerHTML=
+  ans==="5"?'<span class="correct">正解！</span>':'<span class="wrong">もう一度挑戦！</span>';
+}
+
+function toHex2(n){
+  return n.toString(16).toUpperCase().padStart(2, "0");
+}
+
+function updateUI(r, g, b){
+  const hex = `#${toHex2(r)}${toHex2(g)}${toHex2(b)}`;
+
+  document.getElementById("colorPreview").style.background = hex;
+  document.getElementById("hexInput").value = hex.slice(1);
+  document.getElementById("colorPicker").value = hex;
+}
+
+function applyHex(){
+  let hex = document.getElementById("hexInput").value.replace(/^#/, "");
+  if(!/^[0-9a-fA-F]{6}$/.test(hex)){
+    alert("6桁の16進数を入力してください");
+    return;
+  }
+
+  updateUI(
+    parseInt(hex.slice(0,2), 16),
+    parseInt(hex.slice(2,4), 16),
+    parseInt(hex.slice(4,6), 16)
+  );
+}
+
+document.getElementById("colorPicker").addEventListener("input", e => {
+  const hex = e.target.value.slice(1);
+
+  updateUI(
+    parseInt(hex.slice(0,2), 16),
+    parseInt(hex.slice(2,4), 16),
+    parseInt(hex.slice(4,6), 16)
+  );
+});
+
+// 初期表示
+updateUI(37, 99, 235);
+
+function change_color(){
+  let element = document.getElementById('colorPicker');
+    document.body.style.backgroundColor = element.value;
+}
+
+function replaceColor(){
+  document.body.style.backgroundColor = '#f5f7fa';
+}
+
+function keisan(){
+  const a1 = document.getElementById('keisan1').value;
+  const a2 = document.getElementById('keisan2').value;
+  //10進数に変換する
+  const dec1 = parseInt(a1, 2);
+  const dec2 = parseInt(a2, 2);
+  //足し算か引き算の値
+  const dotti = document.getElementById("enzan").value;
+  if(dotti == "tasu"){
+    const wa = dec1 + dec2;
+    const binarywa = wa.toString(2);
+    if (isNaN(wa)) {
+      document.getElementById('kekka').textContent = '正しい2進数を入力してください。';
+    }else{
+      document.getElementById('kei1').textContent = "10進数に変換して計算してみると" + dec1 + "＋" + dec2 + "=" + wa;
+      document.getElementById('kekka').textContent = `答えは${binarywa}`;
+    }
+  }else if(dotti == "hiku"){
+    const sa = dec1 - dec2;
+    const binarysa = sa.toString(2);
+    if (isNaN(sa)) {
+      document.getElementById('kekka').textContent = '正しい2進数を入力してください。';
+    }else if(dec1 >= dec2){
+      document.getElementById('kei1').textContent = "10進数に変換して計算してみると" + dec1 + "ー" + dec2 + "=" + sa;
+      document.getElementById('kekka').textContent = `答えは${binarysa}`;
+    }else{
+      document.getElementById('kekka').textContent = 'マイナスになってしまいます';
+    }
+  }
+  
+  if (isNaN(dec1) || isNaN(dec2)){
+    document.getElementById('kei1').textContent = '値を入力してください';
+  }
+}
+let i = 0;
+function kasan(){
+  document.getElementById("kasan").textContent = steps[i];
+
+    i++;
+
+    if(i >= steps.length){
+        i = 0;   // 最後までいったら最初に戻る
+    }
+ 
+}
+function modoru(){
+    i--;
+
+    if(i < 0){
+        i = 0;   // 最後までいったら最初に戻る
+    }
+
+    document.getElementById("kasan").textContent = steps[i];
+ 
+}
+const steps = [
+` 0110
++0011
+-----`,
+
+` 0110
++0011
+-----
+    1`,
+
+` 0110
++0011
+-----
+   01`,
+
+` 0110
++0011
+-----
+  101`,
+
+` 0110
++0011
+-----
+ 1001`
+    ];
+
+  let j = 0
+function gensan(){
+  document.getElementById("gensan").textContent = steps1[j];
+
+    j++;
+
+    if(j >= steps1.length){
+        j = 0;   // 最後までいったら最初に戻る
+    }
+ 
+  }
+  function modoru1(){
+
+    j--;
+
+      if(j < 0){
+          j = 0;   // 最後までいったら最初に戻る
+      }
+    document.getElementById("gensan").textContent = steps1[j];
+  
+}
+const steps1 = [
+` 0110
+-0011
+-----`,
+
+` 0110
+-0011
+-----
+ 0  `,
+
+` 0110
+-0011
+-----
+ 00  `,
+
+` 0110
+-0011
+-----
+ 001 `,
+
+` 0110
+-0011
+-----
+ 0010`
+    ];
+
+
+</script>
+</body>
+</html>
