@@ -490,9 +490,36 @@ function replaceColor(){
   document.body.style.backgroundColor = '#f5f7fa';
 }
 
+let keinsan1 = true; //計算できるのか
+let keinsan2 = true; //計算できるのか
+
 function keisan(){
-  const a1 = document.getElementById('keisan1').value;
-  const a2 = document.getElementById('keisan2').value;
+  let a1 = document.getElementById('keisan1').value;
+  let a2 = document.getElementById('keisan2').value;
+
+      const digits = String(a1).split(''); 
+
+      const digits2 = String(a2).split('');
+
+      // 一桁ずつループで確かめる
+      digits.forEach((digit, index) => {
+        console.log(`${index + 1}桁目は ${digit} です`);
+        console.log("0か1を確かめます");
+        if(digit != "0" && digit != "1"){
+          console.log("0か1ではありません");
+          keinsan1 = false;
+        }
+      });
+
+      digits2.forEach((digit2, index) => {
+        console.log(`${index + 1}桁目は ${digit2} です`);
+        console.log("0か1を確かめます");
+        if(digit2 != "0" && digit2 != "1"){
+          console.log("0か1ではありません");
+          keinsan2 = false;
+        }
+      });
+    if(keinsan1 == true && keinsan2 == true){
   //10進数に変換する
   const dec1 = parseInt(a1, 2);
   const dec2 = parseInt(a2, 2);
@@ -523,7 +550,13 @@ function keisan(){
   if (isNaN(dec1) || isNaN(dec2)){
     document.getElementById('kei1').textContent = '値を入力してください';
   }
+  }else{
+    document.getElementById('kekka').textContent = '正しい2進数を入力してください。';
+    keinsan1 = true;
+    keinsan2 = true;
+  }
 }
+  
 let i = 0;
 function kasan(){
   document.getElementById("kasan").textContent = steps[i];
