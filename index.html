@@ -144,6 +144,27 @@
   }
   .dec-input:focus { outline: 2px solid var(--blue); border-color: transparent; }
   .dec-input.error { border-color: var(--red); background: #fff0f0; }
+   #slide_area {
+  width: 300px;
+  margin: 0 auto;
+  }
+  #btn_area {
+  display: flex;
+  justify-content: space-around;
+  padding: 30px;
+  }
+  .btn {
+  background: var(--blue);
+  color: #fff;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 8px; 
+  }
+  #img{
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+  }
 </style>
 </head>
 <body>
@@ -162,7 +183,18 @@
     <div style="text-align:center;"><button onclick="toggle()">スイッチを切り替える</button></div>
     <p>ON → 1 / OFF → 0</p>
   </div>
-
+　<div class="card">
+    <h2>② 11(10)の2進数への変換</h2>
+    <div id="slide">
+        <div id="image_area">
+          <img id="img" src="jouhou1.png">
+        </div>
+       </div>
+       <div id="btn_area">
+        <div class="btn" id="prev">戻る</div>
+        <div class="btn" id="next">進む</div>
+       </div>
+  </div>
   <!-- ② 4ビット -->
   <div class="card">
     <h2>② 進数の表現と変換</h2>
@@ -650,7 +682,23 @@ const steps1 = [
 -----
  0010`
     ];
-
+const images = ["jouhou1.png", "jouhou2.png","jouhou3.png","jouhou4.png","jouhou5.png","jouhou6.png","jouhou7.png","jouhou8.png"];
+const img = document.getElementById('img');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+let current = 0;
+next.addEventListener('click', function() {
+    if(current +1 < images.length) {
+        current++;
+        img.src = images[current];
+    }
+});
+prev.addEventListener('click', function() {
+    if(current  > 0) {
+        current--;
+        img.src = images[current];
+    }
+});
 
 </script>
 </body>
